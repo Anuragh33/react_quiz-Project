@@ -22,7 +22,7 @@ function DateCounter() {
   const [state, dispatch] = useReducer(reducer, INITIALSTATE)
   const { step, count } = state
 
-  const date = new Date("june 21 2027")
+  const date = new Date()
 
   date.setDate(date.getDate() + count)
 
