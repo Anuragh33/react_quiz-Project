@@ -6,6 +6,8 @@ import Error from "./Error"
 import StartScreen from "./StartScreen"
 import Question from "./Question"
 import NextButton from "./NextButton"
+import Progress from "./Progress"
+import FinishScreen from "./FinishScreen"
 
 const initialState = {
   questions: [],
@@ -41,6 +43,11 @@ function reducer(state, action) {
             ? state.points + question.points
             : state.points,
       }
+    case "finish":
+      return {
+        ...state,
+        status: "finished",
+      }
     case "nextQuestion":
       return {
         ...state,
@@ -59,6 +66,7 @@ export default function App() {
   )
 
   const numQuestions = questions.length
+  const maxPoints = questions.reduce((pre, cur) => pre + cur.points, 0)
 
   useEffect(() => {
     fetch("http://localhost:8000/questions")
@@ -66,6 +74,7 @@ export default function App() {
       .then((data) => dispatch({ type: "dataReceived", payload: data }))
       .catch((err) => dispatch({ type: "errorFound" }))
   }, [])
+
   return (
     <div className="app">
       <Header />
@@ -77,17 +86,31 @@ export default function App() {
         )}
         {status === "active" && (
           <>
-            {" "}
+            <Progress
+              index={index}
+              numQuestions={numQuestions}
+              points={points}
+              maxPoints={maxPoints}
+              answer={answer}
+            />
             <Question
-              questions={questions[index]}
+              question={questions[index]}
               dispatch={dispatch}
               answer={answer}
-              points={points}
             />
-            <NextButton dispatch={dispatch} answer={answer} />
+            <NextButton
+              dispatch={dispatch}
+              answer={answer}
+              index={index}
+              numQuestions={numQuestions}
+            />
           </>
         )}
       </Main>
+
+      {status === "finished" && (
+        <FinishScreen points={points} maxpoints={maxPoints} />
+      )}
     </div>
   )
 }
